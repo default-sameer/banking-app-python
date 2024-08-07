@@ -29,3 +29,7 @@ This project is a simple banking system implemented in Python. It includes funct
 ├── config.py
 
 ```
+
+#### Visible Bugs
+
+- Sometimes when the superuser logs out instead of going back to the login page, it shows the enter youy choice prompt again.

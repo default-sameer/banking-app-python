@@ -1,24 +1,38 @@
 from datetime import datetime
 import os
-from app.customer_management import customer_login
 from app.session import save_session, update_last_activity
 from utils.constants import USERS_FILE
 import getpass
-
 from utils.session_helpers import handle_session_timeout
 
+# def create_users_file_if_not_exists():
+#     if not os.path.exists(USERS_FILE):
+#         with open(USERS_FILE, 'w') as file:
+#             print("Users file created successfully.")
+
 def create_users_file_if_not_exists():
-    if not os.path.exists(USERS_FILE):
-        with open(USERS_FILE, 'w') as file:
-            print("Users file created successfully.")
+    try:
+        open(USERS_FILE, 'x').close()
+    except FileExistsError:
+        pass
+            
+def display_logged_in_user(session):
+    if 'role' in session:
+       print(f"\nLogged in: {session['username']} as {session['role']}")
+    elif 'customer' in session:
+        print(f"\nLogged in as: {session['customer']}")
         
 def load_users():
     users = []
     create_users_file_if_not_exists()
     with open(USERS_FILE, 'r') as file:
         for line in file:
-            username, password, role, last_login = line.strip().split(',')
-            users.append({'username': username, 'password': password, 'role': role, 'last_login': last_login})
+            parts = line.strip().split(',')
+            if len(parts) == 4:
+                username, password, role, last_login = parts
+                users.append({'username': username, 'password': password, 'role': role, 'last_login': last_login})
+            else:
+                print(f"Skipping invalid line in users file: {line.strip()}")
     return users
 
 def save_users(users):
@@ -58,7 +72,8 @@ def handle_superadmin_tasks(session):
     while True:
         if handle_session_timeout(session):
             break
-        print(f"\nLogged in as: {session['role']}")
+        # print(f"\nLogged in: {session['username']} as {session['role']}")
+        display_logged_in_user(session)
         print("1. Create User")
         print("2. Change Username")
         print("3. Change Password")
@@ -143,18 +158,6 @@ def change_password(session):
     save_users(users)
     print("Password changed successfully.")
 
-def load_users():
-    users = []
-    create_users_file_if_not_exists()
-    with open(USERS_FILE, 'r') as file:
-        for line in file:
-            parts = line.strip().split(',')
-            if len(parts) == 4:
-                username, password, role, last_login = parts
-                users.append({'username': username, 'password': password, 'role': role, 'last_login': last_login})
-            else:
-                print(f"Skipping invalid line in users file: {line.strip()}")
-    return users
 
 def save_users(users):
     with open(USERS_FILE, 'w') as file:

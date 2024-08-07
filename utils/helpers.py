@@ -5,14 +5,6 @@ from app.user_management import handle_superadmin_tasks, handle_user_tasks
 from app.customer_management import handle_customer_tasks
 
 
-
-def display_logged_in_user(session):
-    if 'role' in session:
-        print(f"\nLogged in as: {session['role']}")
-    elif 'customer' in session:
-        print(f"\nLogged in as: {session['customer']}")
-
-
 def display_main_menu(session):
     if 'role' in session:
         if session['role'] == 'superadmin':

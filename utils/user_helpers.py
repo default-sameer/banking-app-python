@@ -18,8 +18,8 @@ def create_super_user():
         with open(USERS_FILE, 'a') as file:
             file.write(f"{super_user['username']},{super_user['password']},{super_user['role']},{super_user['last_login']}\n")
             print(f"Super User created successfully with username '{super_user['username']}' and password '{super_user['password']}'.")
-    else:
-        print("A superadmin already exists. No need to create another one.")
+    # else:
+    #     print("A superadmin already exists. No need to create another one.")
 
 def check_super_user_exists():
     create_users_file_if_not_exists()
