@@ -7,3 +7,8 @@ def validate_date_format(date_string):
         return True
     except ValueError:
         return False
+
+def validate_account_type(account_type):
+    if account_type.lower() not in ['savings', 'current']:
+        return False
+    return True

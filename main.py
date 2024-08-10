@@ -5,8 +5,6 @@ from app.user_management import handle_user_login
 from app.customer_management import handle_customer_login
 from utils.session_helpers import handle_session_timeout
 
-
-
 def main():
     print("Welcome to the Banking Service Application!")
     session = load_session()

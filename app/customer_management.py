@@ -5,6 +5,8 @@ from utils.generators import generate_unique_customer_id, generate_unique_accoun
 from utils.session_helpers import handle_session_timeout
 import getpass
 
+from utils.validation import validate_account_type
+
 # Function to load existing customer data from file
 def load_customers():
     if os.path.exists(CUSTOMERS_FILE):
@@ -37,21 +39,29 @@ def load_customer_data():
     customers = []
     with open(CUSTOMERS_FILE, 'r') as file:
         for line in file:
-            customer_id, name, dob, account_type, account_number, password = line.strip().split(',')
-            customers.append({'customer_id': customer_id, 'name': name, 'dob': dob, 'account_type': account_type, 'account_number': account_number, 'password': password})
+            customer_id, name, dob, account_type, account_number, password, created_by = line.strip().split(',')
+            customers.append({'customer_id': customer_id, 'name': name, 'dob': dob, 'account_type': account_type, 'account_number': account_number, 'password': password, 'created_by' : created_by})
     return customers
 
 
-def register_customer(name, dob, account_type):
+def register_customer(name, dob, account_type, created_by):
+    # Validate account type
+    if not validate_account_type(account_type):
+        return None, "Invalid account type. Please choose either 'savings' or 'current'."
+
     with open(CUSTOMERS_FILE, 'r') as file:
         for line in file:
-            if name in line:
-                return None, "Customer already registered."
+            customer_id, existing_name, existing_dob, existing_account_type, account_number, password, creator = line.strip().split(',')
+            if existing_name == name and existing_dob == dob:
+                return None, "Customer with the same name and date of birth already registered."
+
     customer_id = generate_unique_customer_id()
     account_number = generate_unique_account_number()
     default_password = "password123"
+    
     with open(CUSTOMERS_FILE, 'a') as file:
-        file.write(f"{customer_id},{name},{dob},{account_type},{account_number},{default_password}\n")
+        file.write(f"{customer_id},{name},{dob},{account_type},{account_number},{default_password},{created_by}\n")
+    
     return account_number, default_password
     
  

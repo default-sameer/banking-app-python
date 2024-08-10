@@ -4,6 +4,7 @@ from app.session import save_session, update_last_activity
 from utils.constants import USERS_FILE
 import getpass
 from utils.session_helpers import handle_session_timeout
+from utils.customer_helpers import handle_customer_tasks
 
 # def create_users_file_if_not_exists():
 #     if not os.path.exists(USERS_FILE):
@@ -102,7 +103,8 @@ def handle_user_tasks(session):
         print("\nUser Menu:")
         print("1. Change Username")
         print("2. Change Password")
-        print("3. Logout")
+        print("3. View Customer Portal")
+        print("4. Logout")
         user_choice = input("Enter your choice: ")
         session = update_last_activity(session)
         if user_choice == '1':
@@ -110,9 +112,13 @@ def handle_user_tasks(session):
         elif user_choice == '2':
             change_password(session)
         elif user_choice == '3':
+            handle_customer_tasks(session)
+        elif user_choice == '4':
             print("Logging out...")
             session.clear()
             save_session(session)
+            from utils.helpers import display_main_menu
+            display_main_menu(session)
             return
         else:
             print("Invalid choice. Please try again.")

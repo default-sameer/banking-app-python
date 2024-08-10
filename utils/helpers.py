@@ -27,3 +27,7 @@ def display_main_menu(session):
             print("1. User Login")
             print("2. Customer Login")
             print("3. Exit")
+
+
+def back_to_main_menu(session):
+    handle_user_tasks(session)
