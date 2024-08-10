@@ -1,4 +1,4 @@
-from app.session import  load_session
+from app.session import  load_session, save_session
 from app.app_initialization import initialize_app
 from utils.helpers import display_main_menu
 from app.user_management import handle_user_login
@@ -14,8 +14,14 @@ def main():
         display_main_menu(session)
         choice = input("Enter your choice: ")
         if choice == '1':
+            if 'customer' in session:
+                session.clear()
+                save_session(session)
             handle_user_login(session)
         elif choice == '2':
+            if 'username' in session:
+                session.clear()
+                save_session(session)
             handle_customer_login(session)
         elif choice == '3':
             print("Exiting the application. Goodbye!")

@@ -100,7 +100,7 @@ def handle_user_tasks(session):
     while True:
         if handle_session_timeout(session):
             break
-        print("\nUser Menu:")
+        print(f"\nLogged in {session['username']} as {session['role']}:")
         print("1. Change Username")
         print("2. Change Password")
         print("3. View Customer Portal")
@@ -117,8 +117,6 @@ def handle_user_tasks(session):
             print("Logging out...")
             session.clear()
             save_session(session)
-            from utils.helpers import display_main_menu
-            display_main_menu(session)
             return
         else:
             print("Invalid choice. Please try again.")
