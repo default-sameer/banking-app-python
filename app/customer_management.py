@@ -5,7 +5,27 @@ from utils.generators import generate_unique_customer_id, generate_unique_accoun
 from utils.session_helpers import handle_session_timeout
 import getpass
 from app.service.customer import check_available_balance, update_account_balance, load_customer_data, generate_report
+
 from utils.validation import validate_account_type, validate_date_format
+from app.service.customer import update_account_balance, log_transaction, change_customer_password
+
+
+def ensure_file_exists(file_path, file_description):
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as file:
+            for line in file:
+                pass
+    else:
+        print(f"{file_description} not found. Please wait...")
+        with open(file_path, 'w') as file:
+            print(f"{file_description} created successfully.")
+
+def load_customers():
+    ensure_file_exists(CUSTOMERS_FILE, "Customers file")
+
+def load_accounts():
+    ensure_file_exists(ACCOUNTS_FILE, "Accounts file") 
+            
 
 
 def register_customer(name, dob, account_type, created_by):
@@ -27,10 +47,13 @@ def register_customer(name, dob, account_type, created_by):
     if account_type == 'savings':
         with open(ACCOUNTS_FILE, 'a') as file:
             file.write(f"{customer_id},{name},{account_number},{account_type}, 100 \n")
+        update_account_balance(account_number, 100, 'deposit')
+        log_transaction(account_number, name, 100, 'deposit')
     else :
         with open(ACCOUNTS_FILE, 'a') as file:
             file.write(f"{customer_id},{name},{account_number},{account_type}, 500 \n")
-        
+        update_account_balance(account_number, 500, 'deposit')
+        log_transaction(account_number, name, 500, 'deposit')
     return account_number, default_password
     
  
@@ -46,6 +69,7 @@ def customer_login():
             return data
     print("Invalid account number or password.")
     return None
+
 
 def handle_customer_login(session):
     if 'customer' in session and 'account_number' in session:
@@ -92,7 +116,12 @@ def handle_customer_tasks(session):
             else: 
                 print(message)
         elif customer_choice == '4':
-            print("Change Password")
+            password = getpass.getpass("Enter new password: ")
+            success, message = change_customer_password(session['customer'] ,session['account_number'], password)
+            if(success):
+                print(message)
+            else:
+                print(message)
         elif customer_choice == '5':
             startData = input("Enter start date (YYYY-MM-DD): ")
             endData = input("Enter end date (YYYY-MM-DD): ")
@@ -100,7 +129,11 @@ def handle_customer_tasks(session):
                 print("Invalid date format. Please enter date in the format YYYY-MM-DD.")
                 startData = input("Enter start date (YYYY-MM-DD): ")
                 endData = input("Enter end date (YYYY-MM-DD): ")
-            generate_report( session['customer'], session['account_number'], startData, endData)
+            success, message = generate_report( session['customer'], session['account_number'], startData, endData)
+            if success:
+                print(message)
+            else:
+                print(message)
         elif customer_choice == '6':
             print("Logging out...")
             session.clear()

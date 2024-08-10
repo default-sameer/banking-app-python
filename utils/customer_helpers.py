@@ -2,7 +2,7 @@ from app.customer_management import register_customer
 from app.session import save_session, update_last_activity
 from utils.session_helpers import handle_session_timeout
 from utils.validation import validate_date_format
-from app.service.customer import delete_customer_account, edit_customer_account_type
+from app.service.customer import delete_customer_account, edit_customer_account_type, generate_report
 from utils.validation import validate_account_type, get_account_number_and_dob
 
 def handle_customer_tasks(session):
@@ -13,6 +13,7 @@ def handle_customer_tasks(session):
         print("1. Add Customer Account")
         print("2. Edit Account Type")
         print("3. Delete Customer Account")
+        print("4. Generate Statement of Account of a Customer")
         print("4. Logout")
         customer_choice = input("Enter your choice: ")
         session = update_last_activity(session)
@@ -43,6 +44,21 @@ def handle_customer_tasks(session):
             if success:
                 break
         elif customer_choice == '4':
+            customer_name = input("Enter customer name: ")
+            account_number = input("Enter account number: ")
+            startData = input("Enter start date (YYYY-MM-DD): ")
+            endData = input("Enter end date (YYYY-MM-DD): ")
+            while not validate_date_format(startData) or not validate_date_format(endData):
+                print("Invalid date format. Please enter date in the format YYYY-MM-DD.")
+                startData = input("Enter start date (YYYY-MM-DD): ")
+                endData = input("Enter end date (YYYY-MM-DD): ")
+            success, message = generate_report(customer_name, account_number, startData, endData)
+            if success:
+                print(message)
+                break
+            else:
+                print(message)
+        elif customer_choice == '5':
             print("Logging out...")
             session.clear()
             save_session(session)

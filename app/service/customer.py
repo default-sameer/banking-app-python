@@ -1,5 +1,6 @@
 
 from datetime import datetime
+import getpass
 import os
 from utils.constants import CUSTOMERS_FILE, ACCOUNTS_FILE, TRANSACTIONS_DIR, TRANSACTION_FILE
 
@@ -12,7 +13,23 @@ def load_customer_data():
     return customers
 
 
+def change_customer_password(customer_name, account_number, new_password):
+    customers = load_customer_data()
+    customer_found = False
 
+    for customer in customers:
+        if customer['name'] == customer_name and customer['account_number'] == account_number:
+            customer['password'] = new_password
+            customer_found = True
+            break
+
+    if customer_found:
+        with open(CUSTOMERS_FILE, 'w') as file:
+            for customer in customers:
+                file.write(f"{customer['customer_id']},{customer['name']},{customer['dob']},{customer['account_type']},{customer['account_number']},{customer['password']},{customer['created_by']}\n")
+        return True, "Customer password updated successfully."
+    else:
+        return False, "Customer not found."
 
 def delete_customer_account(account_number, dob):
     customers = load_customer_data()
@@ -140,14 +157,26 @@ def log_transaction(account_number, account_name, amount, transaction_type):
 
 def generate_report(account_name, account_number, start_date, end_date):
     if not os.path.exists(TRANSACTION_FILE):
-        return "Transaction file does not exist."
+        return False, "Transaction file does not exist."
+    
+    customers = load_customer_data()
+    
+    customer_found = False
+    
+    for customer in customers:
+        if customer['name'] == account_name and customer['account_number'] == account_number:
+            customer_found = True
+            break
+        
+    if not customer_found:
+        return False, "Customer not found."
 
     start_date = datetime.strptime(start_date, "%Y-%m-%d")
     end_date = datetime.strptime(end_date, "%Y-%m-%d")
 
     report = []
     with open(TRANSACTION_FILE, 'r') as file:
-        for line in file.readlines()[1:]:  # Skip header line
+        for line in file.readlines()[1:]:
             account_num, acc_name, amount, trans_type, trans_time = line.strip().split(',')
             trans_time = datetime.strptime(trans_time, "%Y-%m-%d %H:%M:%S")
 
@@ -161,14 +190,16 @@ def generate_report(account_name, account_number, start_date, end_date):
                 })
 
     if not report:
-        return "No transactions found for the given criteria."
+        return False, "No transactions found for the given criteria."
 
-    print("Transaction Report:")
-    print(f"Account Name: {account_name}")
-    print(f"Account Number: {account_number}")
-    print(f"Period: {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}")
-    print("-" * 50)
+    report_message = "Transaction Report:\n"
+    report_message += f"Account Name: {account_name}\n"
+    report_message += f"Account Number: {account_number}\n"
+    report_message += f"Period: {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}\n"
+    report_message += "-" * 50 + "\n"
     for transaction in report:
-        print(f"{transaction['transaction_time']} - {transaction['transaction_type']} - RM{transaction['amount']}")
-    print("-" * 50)
-    print(f"Total Transactions: {len(report)}")
+        report_message += f"{transaction['transaction_time']} - {transaction['transaction_type']} - RM{transaction['amount']}\n"
+    report_message += "-" * 50 + "\n"
+    report_message += f"Total Transactions: {len(report)}\n"
+
+    return True, report_message
