@@ -1,3 +1,0 @@
-account_number,account_name,amount,transaction_type,transaction_time
-1001,sameerj,400.0,deposit,2024-08-10 18:18:53
-1001,sameerj,800.0,deposit,2024-08-10 18:19:08

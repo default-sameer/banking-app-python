@@ -5,36 +5,7 @@ from utils.generators import generate_unique_customer_id, generate_unique_accoun
 from utils.session_helpers import handle_session_timeout
 import getpass
 from app.service.customer import check_available_balance, update_account_balance, load_customer_data, generate_report
-
 from utils.validation import validate_account_type, validate_date_format
-
-
-def load_customers():
-    if os.path.exists(CUSTOMERS_FILE):
-        with open(CUSTOMERS_FILE, 'r') as file:
-            for line in file:
-                # Process each line (e.g., create Customer objects)
-                pass
-    else:
-        print("Customers file not found. Please wait...")
-        with open(CUSTOMERS_FILE, 'w') as file:
-            print("Customers file created successfully.")
-            
-        
-
-
-def load_accounts():
-    if os.path.exists(ACCOUNTS_FILE):
-        with open(ACCOUNTS_FILE, 'r') as file:
-            for line in file:
-                # Process each line (e.g., create Account objects)
-                pass
-    else:
-        # Handle case where file doesn't exist
-        print("Accounts file not found. Please wait...")
-        with open(ACCOUNTS_FILE, 'w') as file:
-            print("Accounts file created successfully.")   
-            
 
 
 def register_customer(name, dob, account_type, created_by):
