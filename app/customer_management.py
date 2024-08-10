@@ -4,9 +4,9 @@ from utils.constants import CUSTOMERS_FILE, ACCOUNTS_FILE
 from utils.generators import generate_unique_customer_id, generate_unique_account_number
 from utils.session_helpers import handle_session_timeout
 import getpass
-from app.service.customer import check_available_balance, update_account_balance, load_customer_data
+from app.service.customer import check_available_balance, update_account_balance, load_customer_data, generate_report
 
-from utils.validation import validate_account_type
+from utils.validation import validate_account_type, validate_date_format
 
 
 def load_customers():
@@ -98,7 +98,8 @@ def handle_customer_tasks(session):
         print("2. Deposit Money")
         print("3. Withdraw Money")
         print("4. Change Password")
-        print("5. Logout")
+        print("5. Generate Statement of Account")
+        print("6. Logout")
         customer_choice = input("Enter your choice: ")
         session = update_last_activity(session)
         if customer_choice == '1':
@@ -110,14 +111,26 @@ def handle_customer_tasks(session):
             success, message = update_account_balance(session['account_number'], amount, 'deposit')
             if success:
                 print(message)
+            else: 
+                print(message)
         elif customer_choice == '3':
             amount = input("Enter amount to withdraw: ")
             success, message = update_account_balance(session['account_number'], amount, 'withdraw')
             if success:
                 print(message)
+            else: 
+                print(message)
         elif customer_choice == '4':
             print("Change Password")
         elif customer_choice == '5':
+            startData = input("Enter start date (YYYY-MM-DD): ")
+            endData = input("Enter end date (YYYY-MM-DD): ")
+            while not validate_date_format(startData) or not validate_date_format(endData):
+                print("Invalid date format. Please enter date in the format YYYY-MM-DD.")
+                startData = input("Enter start date (YYYY-MM-DD): ")
+                endData = input("Enter end date (YYYY-MM-DD): ")
+            generate_report( session['customer'], session['account_number'], startData, endData)
+        elif customer_choice == '6':
             print("Logging out...")
             session.clear()
             save_session(session)

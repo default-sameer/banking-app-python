@@ -10,7 +10,7 @@ def create_users_file_if_not_exists():
 def create_super_user():
     if not check_super_user_exists():
         super_user = {
-            "username": "sameerjoshi",
+            "username": "superadmin",
             "password": "thesuperadmin",
             "role": "superadmin",
             "last_login": datetime.now().strftime("%Y-%m-%d %H:%M:%S")

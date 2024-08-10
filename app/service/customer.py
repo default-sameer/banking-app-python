@@ -11,6 +11,9 @@ def load_customer_data():
             customers.append({'customer_id': customer_id, 'name': name, 'dob': dob, 'account_type': account_type, 'account_number': account_number, 'password': password, 'created_by' : created_by})
     return customers
 
+
+
+
 def delete_customer_account(account_number, dob):
     customers = load_customer_data()
     customer_found = False
@@ -73,7 +76,7 @@ def check_available_balance(account_number):
         account_data = account.strip().split(',')
         if account_data[2].strip() == account_number:
             balance = account_data[4].strip()
-            return True, f"Available balance: {balance}"
+            return True, f"Available balance: RM{balance}"
 
     return False, "Account not found." 
 
@@ -133,3 +136,39 @@ def log_transaction(account_number, account_name, amount, transaction_type):
     with open(TRANSACTION_FILE, 'a') as file:
         transaction_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         file.write(f"{account_number},{account_name},{amount},{transaction_type},{transaction_time}\n")
+        
+
+def generate_report(account_name, account_number, start_date, end_date):
+    if not os.path.exists(TRANSACTION_FILE):
+        return "Transaction file does not exist."
+
+    start_date = datetime.strptime(start_date, "%Y-%m-%d")
+    end_date = datetime.strptime(end_date, "%Y-%m-%d")
+
+    report = []
+    with open(TRANSACTION_FILE, 'r') as file:
+        for line in file.readlines()[1:]:  # Skip header line
+            account_num, acc_name, amount, trans_type, trans_time = line.strip().split(',')
+            trans_time = datetime.strptime(trans_time, "%Y-%m-%d %H:%M:%S")
+
+            if acc_name == account_name and account_num == account_number and start_date <= trans_time <= end_date:
+                report.append({
+                    "account_number": account_num,
+                    "account_name": acc_name,
+                    "amount": amount,
+                    "transaction_type": trans_type,
+                    "transaction_time": trans_time.strftime("%Y-%m-%d %H:%M:%S")
+                })
+
+    if not report:
+        return "No transactions found for the given criteria."
+
+    print("Transaction Report:")
+    print(f"Account Name: {account_name}")
+    print(f"Account Number: {account_number}")
+    print(f"Period: {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}")
+    print("-" * 50)
+    for transaction in report:
+        print(f"{transaction['transaction_time']} - {transaction['transaction_type']} - RM{transaction['amount']}")
+    print("-" * 50)
+    print(f"Total Transactions: {len(report)}")
